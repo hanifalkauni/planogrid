@@ -182,6 +182,66 @@ $processor->setImageConfig($config);
 
 ---
 
+## 📚 Complete API Reference
+
+### 1. `PlanogramProcessor` (Main Facade)
+
+The primary entrypoint class to control spatial grid sorting, template matching, and image annotations.
+
+| Method Signature | Description | Return Type |
+| :--- | :--- | :---: |
+| `setRowStrategy(RowSortingStrategyInterface $strategy)` | Configures active row sorting strategy (Strategy 0 to 5). | `static` |
+| `setThresholdScore(float $score)` | Sets compliance score passing percentage threshold (default `100.0`). | `static` |
+| `setImageConfig(ImageAnnotationConfig $config)` | Configures visual bounding box drawing & font options. | `static` |
+| `process(array $customLabels, float $imageWidth = 1.0, float $imageHeight = 1.0)` | Executes 2D spatial grid sorting and returns sorted matrix. | `PlanogramGridResult` |
+| `verify(mixed $imageBinary, array $customLabels, ?PlanogramTemplate $expectedTemplate = null, float $imageWidth = 1.0, float $imageHeight = 1.0)` | Executes complete verification workflow: sorting, template matching, and image annotation. | `PlanogramEvaluation` |
+| `annotate(mixed $imageBinary, array $customLabels, array $matchStatuses = [], float $imageWidth = 1.0, float $imageHeight = 1.0)` | Annotates image binary with bounding boxes & brand tags without template matching. | `string` (PNG binary) |
+
+---
+
+### 2. `PlanogramGridResult` (Spatial Matrix Result DTO)
+
+| Method Signature | Description | Return Type |
+| :--- | :--- | :---: |
+| `getResultGeometry()` | Returns 2D matrix of sorted pixel coordinates `[row][col]` (`name`, `top`, `left`, `height`, `width`). | `array` |
+| `getResult()` | Returns 2D brand label matrix `[row][Brand 1, Brand 2, ...]`. | `array` |
+| `toArray()` | Returns combined `result_geometry` and `result` arrays. | `array` |
+| `toJson(int $options = JSON_PRETTY_PRINT)` | Converts matrix result to formatted JSON string. | `string` |
+
+---
+
+### 3. `PlanogramEvaluation` (Evaluation Result DTO)
+
+| Method Signature | Description | Return Type |
+| :--- | :--- | :---: |
+| `isCorrect()` | Checks if planogram verification passed (`true` if score >= threshold). | `bool` |
+| `getComplianceScore()` | Returns planogram compliance score percentage (0.0% to 100.0%). | `float` |
+| `getStatus()` | Returns verification status string (`"correct"` or `"incorrect"`). | `string` |
+| `getMatchedCount()` | Returns count of items successfully matched with target template. | `int` |
+| `getDetectedMatrix()` | Returns detected matrix structure. | `array` |
+| `getAnnotatedImage()` | Returns annotated PNG image binary stream. | `?string` |
+| `toArray()` | Converts evaluation result and mismatch list to array. | `array` |
+
+---
+
+### 4. `ImageAnnotationConfig` (Image Drawing Config DTO)
+
+```php
+new ImageAnnotationConfig(
+    string $matchColor = '#00d400',         // HEX color for matched items
+    string $mismatchColor = '#ff0000',      // HEX color for mismatched/competitor items
+    string $lowConfidenceColor = '#ffcc00', // HEX color for low confidence score items
+    float $confidenceThreshold = 85.0,     // Confidence score threshold (%)
+    ?string $fontPath = null,               // Path to custom TrueType font (.ttf) file
+    int $fontSize = 12,                     // Base font size
+    int $borderThickness = 2,               // Bounding box border line thickness (px)
+    bool $adaptiveFontSize = true,          // Auto font sizing based on product name length
+    bool $showConfidenceText = true         // Render confidence score percentage text tag
+);
+```
+
+---
+
 ## ⚡ Laravel Integration (Optional)
 
 The package automatically registers its ServiceProvider via package auto-discovery in Laravel projects.

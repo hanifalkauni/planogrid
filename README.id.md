@@ -182,6 +182,66 @@ $processor->setImageConfig($config);
 
 ---
 
+## 📚 Referensi API Lengkap (`API Reference`)
+
+### 1. `PlanogramProcessor` (Facade Utama)
+
+Class entrypoint utama untuk mengendalikan proses pengurutan grid spasial, pencocokan template, dan anotasi gambar.
+
+| Method Signature | Deskripsi | Return Type |
+| :--- | :--- | :---: |
+| `setRowStrategy(RowSortingStrategyInterface $strategy)` | Mengubah strategi pengurutan baris aktif (Strategy 0 s/d 5). | `static` |
+| `setThresholdScore(float $score)` | Mengatur ambang batas persentase kelulusan compliance score (default `100.0`). | `static` |
+| `setImageConfig(ImageAnnotationConfig $config)` | Mengatur konfigurasi visual penggambaran bounding box & label font. | `static` |
+| `process(array $customLabels, float $imageWidth = 1.0, float $imageHeight = 1.0)` | Menjalankan pengurutan spasial 2D dan mengembalikan matriks terurut. | `PlanogramGridResult` |
+| `verify(mixed $imageBinary, array $customLabels, ?PlanogramTemplate $expectedTemplate = null, float $imageWidth = 1.0, float $imageHeight = 1.0)` | Menjalankan alur verifikasi lengkap: sorting, matching vs template, dan anotasi gambar. | `PlanogramEvaluation` |
+| `annotate(mixed $imageBinary, array $customLabels, array $matchStatuses = [], float $imageWidth = 1.0, float $imageHeight = 1.0)` | Melakukan anotasi gambar bounding box & brand label tanpa pencocokan template. | `string` (PNG binary) |
+
+---
+
+### 2. `PlanogramGridResult` (DTO Hasil Matriks Spasial)
+
+| Method Signature | Deskripsi | Return Type |
+| :--- | :--- | :---: |
+| `getResultGeometry()` | Mengambil matriks 2D koordinat piksel terurut `[row][col]` (`name`, `top`, `left`, `height`, `width`). | `array` |
+| `getResult()` | Mengambil matriks 2D brand label `[row][Brand 1, Brand 2, ...]`. | `array` |
+| `toArray()` | Mengembalikan gabungan `result_geometry` dan `result` dalam bentuk array. | `array` |
+| `toJson(int $options = JSON_PRETTY_PRINT)` | Mengonversi hasil matriks ke format JSON string. | `string` |
+
+---
+
+### 3. `PlanogramEvaluation` (DTO Hasil Evaluasi Planogram)
+
+| Method Signature | Deskripsi | Return Type |
+| :--- | :--- | :---: |
+| `isCorrect()` | Memeriksa apakah verifikasi planogram dinyatakan sesuai (`true` jika score >= threshold). | `bool` |
+| `getComplianceScore()` | Mengambil persentase skor kesesuaian planogram (0.0% s/d 100.0%). | `float` |
+| `getStatus()` | Mengambil status verifikasi (`"correct"` atau `"incorrect"`). | `string` |
+| `getMatchedCount()` | Mengambil jumlah produk yang cocok dengan template acuan. | `int` |
+| `getDetectedMatrix()` | Mengambil struktur matriks deteksi terurut. | `array` |
+| `getAnnotatedImage()` | Mengambil binary stream gambar PNG hasil anotasi bounding box. | `?string` |
+| `toArray()` | Mengonversi seluruh data evaluasi dan daftar mismatch ke array. | `array` |
+
+---
+
+### 4. `ImageAnnotationConfig` (DTO Konfigurasi Gambar)
+
+```php
+new ImageAnnotationConfig(
+    string $matchColor = '#00d400',         // Warna HEX produk match
+    string $mismatchColor = '#ff0000',      // Warna HEX produk mismatch/competitor
+    string $lowConfidenceColor = '#ffcc00', // Warna HEX confidence score rendah
+    float $confidenceThreshold = 85.0,     // Threshold confidence score (%)
+    ?string $fontPath = null,               // Path ke file font TrueType (.ttf)
+    int $fontSize = 12,                     // Ukuran font dasar
+    int $borderThickness = 2,               // Ketebalan garis bounding box (px)
+    bool $adaptiveFontSize = true,          // Auto font sizing berdasarkan panjang nama
+    bool $showConfidenceText = true         // Menampilkan teks persentase confidence
+);
+```
+
+---
+
 ## ⚡ Integrasi Framework Laravel (Opsional)
 
 Package ini secara otomatis menautkan ServiceProvider jika di-install di Laravel via package auto-discovery.
