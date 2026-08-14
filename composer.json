@@ -1,0 +1,42 @@
+{
+    "name": "alkauni/planogrid",
+    "description": "Framework-agnostic PHP package for Planogram Spatial Grid Sorting and AWS Rekognition Image Annotation.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hanif Al-Kauni",
+            "email": "hanif@alkauni.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "intervention/image": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0 || ^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alkauni\\Planogrid\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alkauni\\Planogrid\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Alkauni\\Planogrid\\Integrations\\Laravel\\PlanogridServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
