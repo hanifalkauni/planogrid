@@ -246,7 +246,15 @@ new ImageAnnotationConfig(
 
 Package ini secara otomatis menautkan ServiceProvider jika di-install di Laravel via package auto-discovery.
 
-Di Controller Laravel:
+### Mempublikasikan File Config (Opsional):
+Untuk mengubah konfigurasi default secara terpusat pada proyek Laravel Anda, publikasikan file config:
+
+```bash
+php artisan vendor:publish --tag=planogrid-config
+```
+File konfigurasi akan otomatis dibuat pada `config/planogrid.php`.
+
+### Penggunaan di Controller Laravel:
 
 ```php
 use Alkauni\Planogrid\PlanogramProcessor;
